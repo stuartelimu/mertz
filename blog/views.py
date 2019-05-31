@@ -39,7 +39,7 @@ def post_detail(request, year, month, day, post):
     
     if request.method == 'POST':
         # a comment was posted
-        comment_form = CommentForm(date=request.POST)
+        comment_form = CommentForm(data=request.POST)
         if comment_form.is_valid():
             new_comment = comment_form.save(commit=False)
             new_comment.post = post
