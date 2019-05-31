@@ -5,10 +5,20 @@ from django.views.generic import ListView
 from .models import Post, Comment
 from .forms import EmailPostForm, CommentForm
 
-def post_list(request):
+from taggit.models import Tag
+
+
+def post_list(request, tag_slug=None):
     object_list = Post.published.all()
+    
+    tag = None
+    if tag_slug:
+        tag = get_object_or_404(Tag, slug=tag_slug)
+        object_list = Post.published.filter(tags__in=[tag])
+
     paginator = Paginator(object_list, 3)
     page = request.GET.get('page')
+    
     try:
         posts = paginator.page(page)
     except PageNotAnInteger:
@@ -17,7 +27,7 @@ def post_list(request):
     except EmptyPage:
         # if page is out of range, deliver the last page
         posts = paginator.page(paginator.num_pages)
-    return render(request, 'blog/post/list.html', {'posts':posts, 'page':page})
+    return render(request, 'blog/post/list.html', {'posts':posts, 'page':page, 'tag':tag})
 
 
 class PostListView(ListView):
